@@ -21,7 +21,7 @@ pipeline {
     }
     stage('Docker Image Creation') {
       steps {
-        sh 'docker build -t pratibha012/insure:latest .'
+        sh 'docker build -t pratibha012/insure:1.0 .'
             }
     }
     stage('DockerLogin') {
@@ -34,7 +34,7 @@ pipeline {
 
     stage('Push Image to DockerHub') {
       steps {
-        sh 'docker push pratibha012/insure:latest'
+        sh 'docker push pratibha012/insure:1.0'
             }
     }
     stage('Deploy Application using Ansible') {
