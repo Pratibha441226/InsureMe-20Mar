@@ -9,7 +9,7 @@ pipeline {
     stage('CheckOut') {
       steps {
         echo 'Checkout the source code from GitHub'
-        git branch: 'main', url: ''
+        git branch: 'main', url: 'https://github.com/Pratibha441226/InsureMe-20Mar.git'
             }
     }
     
@@ -19,13 +19,6 @@ pipeline {
         sh 'mvn clean package'
             }
     }
-    
-    stage('Publish Reports using HTML') {
-      steps {
-      publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: '/var/lib/jenkins/workspace/Insure-Project/target/surefire-reports', reportFiles: 'index.html', reportName: 'HTML Report', reportTitles: '', useWrapperFileDirectly: true])
-            }
-    }
-    
     stage('Docker Image Creation') {
       steps {
         sh 'docker build -t pratibha012/insure:latest .'
