@@ -1,52 +1,54 @@
 pipeline {
-  agent any
+    agent any
 
-  stages {
-    stage('CheckOut') {
-      steps {
-        echo 'Checkout the source code from GitHub'
-        git branch: 'main', url: 'https://github.com/Pratibha441226/InsureMe-20Mar.git'
+    stages {
+        stage('CheckOut') {
+            steps {
+                echo 'Checkout the source code from GitHub'
+                git branch: 'main', url: 'https://github.com/Pratibha441226/InsureMe-20Mar.git'
             }
-    }
-    
-    stage('Package the Application') {
-      steps {
-        echo " Packaing the Application"
-        sh 'mvn clean package'
-            }
-    }
-
-    stage('Docker Image Creation') {
-      steps {
-        sh 'docker build -t pratibha012/insure:1.0 .'
-            }
-    }
-    stage('Login to Dockerhub') {
-      steps {
-        echo 'This stage will log in to Docker Hub'
-        withCredentials([usernamePassword(credentialsId: 'dockercreds', passwordVariable: 'dockerpass', usernameVariable: 'dockeruser')]) {
-          sh 'echo "$dockerpass" | docker login -u "$dockeruser" --password-stdin'
         }
-      }
-    }
-            
-            // safer login
-            sh "echo ${DOCKER_PASS} | docker login -u ${DOCKER_USER} --password-stdin"
+
+        stage('Package the Application') {
+            steps {
+                echo 'Packaging the Application'
+                sh 'mvn clean package'
+            }
+        }
+
+        stage('Docker Image Creation') {
+            steps {
+                sh 'docker build -t pratibha012/insure:1.0 .'
+            }
+        }
+
+        stage('Login to Dockerhub') {
+            steps {
+                echo 'This stage will log in to Docker Hub'
+                withCredentials([usernamePassword(credentialsId: 'dockercreds', passwordVariable: 'dockerpass', usernameVariable: 'dockeruser')]) {
+                    sh 'echo "$dockerpass" | docker login -u "$dockeruser" --password-stdin'
+                }
+            }
+        }
+
+        stage('Push Image to DockerHub') {
+            steps {
+                sh 'docker push pratibha012/insure:1.0'
+            }
+        }
+
+        stage('Deploy Application using Ansible') {
+            steps {
+                ansiblePlaybook(
+                    become: true,
+                    credentialsId: 'sshid',
+                    disableHostKeyChecking: true,
+                    installation: 'ansible',
+                    inventory: '/etc/ansible/hosts',
+                    playbook: 'deploy.yml',
+                    vaultTmpPath: ''
+                )
+            }
         }
     }
 }
-
-    stage('Push Image to DockerHub') {
-      steps {
-        sh 'docker push pratibha012/insure:1.0'
-            }
-    }
-  
-    stage('Deploy Application using Ansible') {
-      steps {
-        ansiblePlaybook become: true, credentialsId: 'sshid', disableHostKeyChecking: true, installation: 'ansible', inventory: '/etc/ansible/hosts', playbook: 'deploy.yml', vaultTmpPath: ''
-    }
-    }
-  }
-}
-
