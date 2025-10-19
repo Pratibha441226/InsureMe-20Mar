@@ -28,12 +28,12 @@ pipeline {
     
     stage('Docker Image Creation') {
       steps {
-        sh 'docker build -t cbabu85/insureprojectdec3:latest .'
+        sh 'docker build -t pratibha012/insure:latest .'
             }
     }
     stage('DockerLogin') {
       steps {
-        withCredentials([usernamePassword(credentialsId: 'Docker-Hub', passwordVariable: 'dockerHubPassword', usernameVariable: 'dockerHubUser')]) {
+        withCredentials([usernamePassword(credentialsId: 'dockercreds', passwordVariable: 'dockerpass', usernameVariable: 'dockeruser')]) {
         sh "docker login -u ${env.dockerHubUser} -p ${env.dockerHubPassword}"
 }
             }
