@@ -21,9 +21,14 @@ pipeline {
         sh 'docker build -t pratibha012/insure:1.0 .'
             }
     }
-    stage('DockerLogin') {
-    steps {
-        
+    stage('Login to Dockerhub') {
+      steps {
+        echo 'This stage will log in to Docker Hub'
+        withCredentials([usernamePassword(credentialsId: 'dockercreds', passwordVariable: 'dockerpass', usernameVariable: 'dockeruser')]) {
+          sh 'echo "$dockerpass" | docker login -u "$dockeruser" --password-stdin'
+        }
+      }
+    }
             
             // safer login
             sh "echo ${DOCKER_PASS} | docker login -u ${DOCKER_USER} --password-stdin"
